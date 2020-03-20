@@ -25,7 +25,7 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
         get("/") {
-            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
+            call.respondText("HELLO WERELD!", contentType = ContentType.Text.Plain)
         }
 
         // Static feature. Try to access `/static/ktor_logo.svg`

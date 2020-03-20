@@ -1,0 +1,6 @@
+{
+  "name": "Ouderen zorg app",
+  "description": "App voor ouderen om in contact te blijven",
+  "image": "heroku/java",
+  "addons": ["heroku-postgresql"]
+}
