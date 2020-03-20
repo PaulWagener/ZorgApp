@@ -38,7 +38,6 @@ dependencies {
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
 }
 
-mainClassName = 'nl.paulwagener.zorgapp.ApplicationKt'
 task stage {
     dependsOn installDist
 }
