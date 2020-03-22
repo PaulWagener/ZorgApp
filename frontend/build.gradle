@@ -20,7 +20,8 @@ repositories {
 
 apply plugin: 'com.moowork.node'
 
-task build(type: YarnTask, dependsOn: yarn_install) {
+task build(type: NodeTask, dependsOn: npm_install) {
+    script = file('./node_modules/.bin/react-scripts')
     args = ['build']
 }
 

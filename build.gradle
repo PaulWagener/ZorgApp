@@ -29,6 +29,7 @@ repositories {
 }
 
 task deployWeb(type: Copy) {
+    dependsOn ':frontend:build'
     from fileTree("./frontend/build")
     into "resources/static"
 }
@@ -46,5 +47,5 @@ dependencies {
 }
 
 task stage {
-    dependsOn ':frontend:yarn_install', ':frontend:build', deployWeb, installDist
+    dependsOn ':frontend:build', installDist
 }
