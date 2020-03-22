@@ -1,21 +1,35 @@
 package nl.paulwagener.zorgapp
 
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.content.*
-import io.ktor.http.content.*
-import io.ktor.websocket.*
-import io.ktor.http.cio.websocket.*
-import java.time.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.http.ContentType
+import io.ktor.http.cio.websocket.Frame
+import io.ktor.http.cio.websocket.pingPeriod
+import io.ktor.http.cio.websocket.readText
+import io.ktor.http.cio.websocket.timeout
+import io.ktor.http.content.resources
+import io.ktor.http.content.static
+import io.ktor.response.respondText
+import io.ktor.routing.get
+import io.ktor.routing.routing
+import io.ktor.websocket.webSocket
+import java.time.Duration
+import org.jetbrains.exposed.dao.*
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
+    // Connect to DB
+    Database.connect(System.getenv("JDBC_DATABASE_URL"), driver = "org.postgresql.Driver")
+    transaction {
+        SchemaUtils.createMissingTablesAndColumns(Locations)
+    }
+
     install(io.ktor.websocket.WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
@@ -25,10 +39,9 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
         get("/") {
-            call.respondText("HALLO WERELD!", contentType = ContentType.Text.Plain)
+            call.respondText("hallo wereld", contentType = ContentType.Text.Plain)
         }
 
-        // Static feature. Try to access `/static/ktor_logo.svg`
         static("/static") {
             resources("static")
         }
