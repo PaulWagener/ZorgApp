@@ -8,6 +8,7 @@ import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.pingPeriod
 import io.ktor.http.cio.websocket.readText
 import io.ktor.http.cio.websocket.timeout
+import io.ktor.http.content.resource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.response.respondText
@@ -38,12 +39,9 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        get("/") {
-            call.respondText("hallo wereld", contentType = ContentType.Text.Plain)
-        }
-
+        resource("/", "static/index.html")
         static("/static") {
-            resources("static")
+            resources("static/static")
         }
 
         webSocket("/myws/echo") {

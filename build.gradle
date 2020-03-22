@@ -28,6 +28,11 @@ repositories {
     maven { url 'https://kotlin.bintray.com/ktor' }
 }
 
+task deployWeb(type: Copy) {
+    from fileTree("./frontend/build")
+    into "resources/static"
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "io.ktor:ktor-server-netty:$ktor_version"
@@ -41,5 +46,5 @@ dependencies {
 }
 
 task stage {
-    dependsOn installDist
+    dependsOn ':frontend:yarn_install', ':frontend:build', deployWeb, installDist
 }
