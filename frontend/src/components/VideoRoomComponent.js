@@ -7,7 +7,6 @@ import DialogExtensionComponent from './dialog-extension/DialogExtension';
 
 import OpenViduLayout from '../layout/openvidu-layout';
 import UserModel from '../models/user-model';
-import ToolbarComponent from './toolbar/ToolbarComponent';
 
 var localUser = new UserModel();
 
@@ -20,7 +19,7 @@ class VideoRoomComponent extends Component {
         this.OPENVIDU_SERVER_SECRET = this.props.openviduSecret ? this.props.openviduSecret : 'MY_SECRET';
         this.hasBeenUpdated = false;
         this.layout = new OpenViduLayout();
-        let sessionName = this.props.sessionName ? this.props.sessionName : 'SessionPaulJa';
+        let sessionName = this.props.sessionName ? this.props.sessionName : 'zorgapp';
         let userName = this.props.user ? this.props.user : 'OpenVidu_User' + Math.floor(Math.random() * 100);
         this.state = {
             mySessionId: sessionName,
@@ -172,7 +171,7 @@ class VideoRoomComponent extends Component {
         this.setState({
             session: undefined,
             subscribers: [],
-            mySessionId: 'SessionPaulJa',
+            mySessionId: 'zorgapp',
             myUserName: 'OpenVidu_User' + Math.floor(Math.random() * 100),
             localUser: undefined,
         });
@@ -218,7 +217,6 @@ class VideoRoomComponent extends Component {
             const subscriber = this.state.session.subscribe(event.stream, undefined);
             var subscribers = this.state.subscribers;
             subscriber.on('streamPlaying', (e) => {
-                this.checkSomeoneShareScreen();
                 subscriber.videos[0].video.parentElement.classList.remove('custom-class');
             });
             const newUser = new UserModel();
@@ -238,7 +236,6 @@ class VideoRoomComponent extends Component {
                             isAudioActive: this.state.localUser.isAudioActive(),
                             isVideoActive: this.state.localUser.isVideoActive(),
                             nickname: this.state.localUser.getNickname(),
-                            isScreenShareActive: this.state.localUser.isScreenShareActive(),
                         });
                     }
                     this.updateLayout();
@@ -254,9 +251,6 @@ class VideoRoomComponent extends Component {
             debugger;
             // Remove the stream from 'subscribers' array
             this.deleteSubscriber(event.stream);
-            setTimeout(() => {
-                this.checkSomeoneShareScreen();
-            }, 20);
             event.preventDefault();
             this.updateLayout();
         });
@@ -278,16 +272,12 @@ class VideoRoomComponent extends Component {
                     if (data.nickname !== undefined) {
                         user.setNickname(data.nickname);
                     }
-                    if (data.isScreenShareActive !== undefined) {
-                        user.setScreenShareActive(data.isScreenShareActive);
-                    }
                 }
             });
             this.setState(
                 {
                     subscribers: remoteUsers,
-                },
-                () => this.checkSomeoneShareScreen(),
+                }
             );
         });
     }
@@ -335,45 +325,6 @@ class VideoRoomComponent extends Component {
                 document.webkitExitFullscreen();
             }
         }
-    }
-
-    screenShare() {
-        const videoSource = navigator.userAgent.indexOf('Firefox') !== -1 ? 'window' : 'screen';
-        const publisher = this.OV.initPublisher(
-            undefined,
-            {
-                videoSource: videoSource,
-                publishAudio: localUser.isAudioActive(),
-                publishVideo: localUser.isVideoActive(),
-                mirror: false,
-            },
-            (error) => {
-                if (error && error.name === 'SCREEN_EXTENSION_NOT_INSTALLED') {
-                    this.setState({ showExtensionDialog: true });
-                } else if (error && error.name === 'SCREEN_SHARING_NOT_SUPPORTED') {
-                    alert('Your browser does not support screen sharing');
-                } else if (error && error.name === 'SCREEN_EXTENSION_DISABLED') {
-                    alert('You need to enable screen sharing extension');
-                } else if (error && error.name === 'SCREEN_CAPTURE_DENIED') {
-                    alert('You need to choose a window or application to share');
-                }
-            },
-        );
-
-        publisher.once('accessAllowed', () => {
-            this.state.session.unpublish(localUser.getStreamManager());
-            localUser.setStreamManager(publisher);
-            this.state.session.publish(localUser.getStreamManager()).then(() => {
-                localUser.setScreenShareActive(true);
-                this.setState({ localUser: localUser }, () => {
-                    this.sendSignalUserChanged({ isScreenShareActive: localUser.isScreenShareActive() });
-                });
-            });
-        });
-        publisher.on('streamPlaying', () => {
-            this.updateLayout();
-            publisher.videos[0].video.parentElement.classList.remove('custom-class');
-        });
     }
 
     closeDialogExtension() {
