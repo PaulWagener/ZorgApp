@@ -248,7 +248,6 @@ class VideoRoomComponent extends Component {
         // On every Stream destroyed...
         console.log('PAUL', 'Subscribing to streamDestroyed()', this.state.session);
         this.state.session.on('streamDestroyed', (event) => {
-            debugger;
             // Remove the stream from 'subscribers' array
             this.deleteSubscriber(event.stream);
             event.preventDefault();
